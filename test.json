@@ -1,0 +1,51 @@
+{
+  "name": "Harry Nguyen",
+  "email": "hainguyen29031412@gmail.com",
+  "skills": [
+    "Machine Learning",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Tableau",
+    "Seaborn",
+    "Matplotlib",
+    "AWS",
+    "Python",
+    "SQL",
+    "Azure",
+    "Databrick",
+    "Airflow",
+    "dbt",
+    "Teamwork",
+    "Self-Studying",
+    "Leadership",
+    "Problem Solving"
+  ],
+  "working_experience": [
+    {
+      "company_name": "SiliconCube Company",
+      "job_title": "Machine Learning Engineer",
+      "start_date": "July 2022",
+      "end_date": "June 2023",
+      "key_responsibilities": [
+        "Experimented, error analysed and integrated multiple models (YOLOv5, WPOD-Net, ...), resulted in more than 98% in term of accuracy.",
+        "Deployed trained model on NVIDIA Jetson Xavier device. Built server-client protocol to verify system pipeline and dockerized product.",
+        "Experimented, error analysed and integrated multiple deep models to achieve high performance.",
+        "Created pipeline for system continuous training and monitoring using Wandb."
+      ]
+    },
+    {
+      "company_name": "AI Lab - UET",
+      "job_title": "Computer Vision Research Engineer",
+      "start_date": "April 2020",
+      "end_date": "August 2022",
+      "key_responsibilities": [
+        "Researched, developed and ensembled several detection models for comparative analysis (mostly YOLOv5 and CenterNet).",
+        "Research, optimized and benchmarked different tracking models (DeepSORT, FairMOT), resulted in approximately 85% in term of MOTA metric on collected dataset.",
+        "Leaded data team and annotation pipeline, including data collection, extraction, annotation and quality verification.",
+        "Created partial automation pipeline with re-identification models to support annotation process, resulted in x2 annotation speed compared to traditional method.",
+        "Collaborated to generate the largest multiple-camera tracking dataset compared to existing datasets in terms of camera, tracking area, and human ID quantities.",
+        "Collaborated to design new algorithm for tracking across multiple cameras using different techniques, namely camera calibration, top-view representation, feature matching, etc."
+      ]
+    }
+  ]
+}
