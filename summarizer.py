@@ -8,7 +8,7 @@ class Summarizer:
         self.client = OpenAI(api_key=api_key)
         return
     
-    def summarize_info(self, prompt, query):
+    def summarize_info(self, query, prompt):
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             store=True,
@@ -23,11 +23,11 @@ class Summarizer:
         # Extract the response content
         result = response.choices[0].message.content
 
-        # Convert the JSON string into a Python dictionary
-        try:
-            result = json.loads(result)
-        except json.JSONDecodeError as e:
-            print("Failed to parse JSON:", e)
+        # # Convert the JSON string into a Python dictionary
+        # try:
+        #     result = json.loads(result)
+        # except json.JSONDecodeError as e:
+        #     print("Failed to parse JSON:", e)
 
         return result
 
@@ -37,6 +37,9 @@ if __name__ == '__main__':
 
     summarizer = Summarizer(api_key=keys['UTS_OPENAI_KEY'])
 
+    '''
+    summarize resume
+    '''
     # path = '/Users/hainguyen/Desktop/Harry_Nguyen_Resume.pdf'
 
     # resume = Resume(source=path)
@@ -62,7 +65,7 @@ if __name__ == '__main__':
     with open('job_prompt.txt', 'r') as f:
         prompt = f.read()
 
-    final = summarizer.summarize_info(prompt, query=description)
+    final = summarizer.summarize_info(prompt=prompt, query=description)
 
     print(final)
 

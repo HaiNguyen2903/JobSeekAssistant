@@ -44,7 +44,7 @@ class Embedder:
             json.dump(id_mapping, f)
         
         # embed all descriptions
-        job_df['embedding'] = job_df['description'].apply(self._get_embedding)
+        job_df['embedding'] = job_df['job_summary'].apply(self._get_embedding)
 
         embeddings = np.vstack(job_df['embedding'].values)
 
@@ -59,9 +59,6 @@ class Embedder:
         D, I = job_embeds.search(np.array([resume_embed]), k=k)
         return D, I
 
-
-
-
 def main():
     with open('api_keys.json', 'r') as f:
         keys = json.load(f)
@@ -71,15 +68,28 @@ def main():
     embedder = Embedder(api_key=api_key)
     summarizer = Summarizer(api_key=api_key)
 
+    with open('resume_prompt.txt', 'r') as f:
+        resume_prompt = f.read()
+
+    with open('job_prompt.txt', 'r') as f:
+        job_prompt = f.read()
+
     df = pd.read_csv('datasets/job_descs_exp.csv')
 
-    # out = 'job_embeds.faiss'
+    df['job_summary'] = df['description'].apply(summarizer.summarize_info, prompt=job_prompt)
 
-    # embedder.store_job_embeddings(output=out, job_df=df)
+    '''
+    save job embeddings
+    '''
+    # save_embed_file = 'job_embeds.faiss'
+    # save_id_file = 'id_mapping.json'
+    # embedder.store_job_embeddings(embed_output=save_embed_file, id_output=save_id_file, job_df=df)
+    # return
 
+    '''
+    embed resume and get k suitable jobs
+    '''
     path = '/Users/hainguyen/Desktop/Harry_Nguyen_Resume.pdf'
-
-    # print(embedder._get_embedding('I love you'))
 
     resume_text = Resume(source=path, is_pdf=True).text
 
@@ -87,25 +97,15 @@ def main():
 
     description = df.iloc[2]['description']
 
-    with open('resume_prompt.txt', 'r') as f:
-        resume_prompt = f.read()
+    resume_sum = summarizer.summarize_info(prompt=resume_prompt, query=resume_text)
 
-    with open('job_prompt.txt', 'r') as f:
-        job_prompt = f.read()
-
-    resume_sum = summarizer.summarize_info(resume_prompt, query=resume_text)
-
+    # read embeddings from .faiss file
     job_embeds = faiss.read_index('job_embeds.faiss')
-    D, I = embedder.get_topk_jobs(resume_text=resume_sum, job_embeds=job_embeds)
+
+    D, I = embedder.get_topk_jobs(resume_text=resume_sum, job_embeds=job_embeds, k=5)
     print(D)
     print()
     print(I)
-
-    # desc_sum = summarizer.summarize_info(job_prompt, query=description)
-
-    # print(f'RESUME\n {resume_sum}')
-    # print(f'JOB\n {desc_sum}')
-    # print(embedder.get_similarity_score(resume_sum, desc_sum))
 
     return
 
