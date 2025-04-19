@@ -46,8 +46,12 @@ class Embedder:
         # embed all descriptions
         job_df['embedding'] = job_df['job_summary'].apply(self._get_embedding)
 
-        embeddings = np.vstack(job_df['embedding'].values)
+        embeddings = np.vstack(job_df['embedding'].values).astype('float32')
 
+        # normalize embeddings
+        faiss.normalize_L2(embeddings)
+
+        # add to index
         index.add(embeddings)
 
         faiss.write_index(index, embed_output)
@@ -55,8 +59,12 @@ class Embedder:
         return
     
     def get_topk_jobs(self, resume_text, job_embeds, k=2):
-        resume_embed = self._get_embedding(resume_text)
-        D, I = job_embeds.search(np.array([resume_embed]), k=k)
+        resume_embed = np.array(self._get_embedding(resume_text), dtype='float32').reshape(1, -1)
+        
+        # normalize embedding
+        faiss.normalize_L2(resume_embed)
+
+        D, I = job_embeds.search(resume_embed, k=k)
         return D, I
 
 def main():
@@ -74,13 +82,16 @@ def main():
     with open('job_prompt.txt', 'r') as f:
         job_prompt = f.read()
 
-    df = pd.read_csv('datasets/job_descs_exp.csv')
-
-    df['job_summary'] = df['description'].apply(summarizer.summarize_info, prompt=job_prompt)
-
     '''
     save job embeddings
     '''
+    # df = pd.read_csv('datasets/job_descs_sum_exp.csv')
+
+    # df['job_summary'] = df['description'].apply(summarizer.summarize_info, prompt=job_prompt)
+
+    # # save csv
+    # df.to_csv('datasets/job_descs_sum_exp.csv', index=False)
+
     # save_embed_file = 'job_embeds.faiss'
     # save_id_file = 'id_mapping.json'
     # embedder.store_job_embeddings(embed_output=save_embed_file, id_output=save_id_file, job_df=df)
@@ -102,6 +113,7 @@ def main():
     # read embeddings from .faiss file
     job_embeds = faiss.read_index('job_embeds.faiss')
 
+    # return cosine scores and embedding indices
     D, I = embedder.get_topk_jobs(resume_text=resume_sum, job_embeds=job_embeds, k=5)
     print(D)
     print()
