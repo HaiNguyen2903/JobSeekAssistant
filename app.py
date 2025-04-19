@@ -1,7 +1,10 @@
 import streamlit as st
 from resume import Resume
 from summarizer import Summarizer
+from text_embedding import Embedder
 import json
+import faiss
+import pandas as pd
 
 if __name__ == '__main__':
     # Streamlit app UI
@@ -12,50 +15,50 @@ if __name__ == '__main__':
     with open('api_keys.json', 'r') as f:
         keys = json.load(f)
 
-    with open('resume_summarize_prompt.txt', 'r') as f:
-        prompt = f.read()
-    
+    with open('resume_prompt.txt', 'r') as f:
+        resume_prompt = f.read()
+
+    with open('job_prompt.txt', 'r') as f:
+        job_prompt = f.read()
 
     api_key = keys['UTS_OPENAI_KEY']
 
-    # if uploaded_file is not None:
-    with st.spinner('Extracting and summarizing your resume...'):
-        if uploaded_file:
+    if uploaded_file:
+        with st.spinner('Extracting and summarizing your resume...'):
             resume = Resume(uploaded_file)
             summarizer = Summarizer(api_key=api_key)
 
             resume_text = resume.text
-            # replace resume content in the prompt
-            prompt = prompt.replace('resume_content', resume_text)
-            resume_summary = summarizer.summarize_info(prompt)
-        # resume_embedding = get_embedding(resume_summary)
-    
+            # Replace resume content in the prompt
+            resume_summary = summarizer.summarize_info(prompt=resume_prompt, query=resume_text)
+
             st.subheader("Your Resume Summary")
             st.text(resume_summary)
 
-        # num_results = st.slider("Select number of job matches", 1, len(jobs), 3)
+        with st.spinner('Matching your resume with job descriptions...'):
+            embedder = Embedder(api_key=api_key)
 
-        # # Match jobs by similarity
-        # similarities = [
-        #     cosine_similarity([resume_embedding], [job['embedding']])[0][0]
-        #     for job in jobs
-        # ]
+            # read embeddings from .faiss file
+            job_embeds = faiss.read_index('job_embeds.faiss')
 
-        # # Sort jobs by similarity
-        # matched_jobs = sorted(zip(jobs, similarities), key=lambda x: x[1], reverse=True)[:num_results]
+            # Find top 5 matching jobs
+            sim_scores, indices = embedder.get_topk_jobs(resume_summary, job_embeds, k=5)
 
-        # st.subheader("Matched Jobs")
-        # for job, similarity in matched_jobs:
-        #     st.markdown(f"**{job['title']}** — Similarity: {similarity:.2f}")
-        #     st.text(job['summary'])
+            st.subheader("Top Matching Jobs")
 
-        #     # Highlight matching parts
-        #     st.markdown("**Matched Sections:**")
-        #     job_sections = job['summary'].split('\n')
-        #     resume_sections = resume_summary.split('\n')
-
-        #     for j_sec in job_sections:
-        #         if any(j_sec.split(':')[0] in r_sec for r_sec in resume_sections):
-        #             st.markdown(f":green[{j_sec}]")
-        #         else:
-        #             st.markdown(j_sec)
+            with open('id_mapping.json', 'r') as f:
+                id_mapping = json.load(f)
+            
+            for score, index in zip(sim_scores[0], indices[0]):
+                job_id = id_mapping[str(index)]
+                # Load job descriptions from CSV
+                df = pd.read_csv('datasets/job_descs_sum_exp.csv')
+                
+                job_description = df[df['job_id'] == job_id]['description'].item()
+                job_summary = df[df['job_id'] == job_id]['job_summary'].item()
+                
+                st.write(f"**Job Index:** {index}")
+                st.write(f"**Similarity Score:** {score}")
+                st.write(f"**Job Description:** {job_description}")
+                st.write(f"**Job Summary:** {job_summary}")
+                st.write("---")
