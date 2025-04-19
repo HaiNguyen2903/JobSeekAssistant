@@ -8,13 +8,13 @@ class Summarizer:
         self.client = OpenAI(api_key=api_key)
         return
     
-    def summarize_info(self, prompt):
+    def summarize_info(self, prompt, query):
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             store=True,
             messages=[
-                        {"role": "system", "content": "You are a helpful assistant that extracts information from resumes."},
-                        {"role": "user", "content": prompt}
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": query}
                     ],
                     temperature=0.2,
                     max_tokens=1000
@@ -43,28 +43,26 @@ if __name__ == '__main__':
 
     # summarizer = Summarizer(api_key=keys['UTS_OPENAI_KEY'])
 
-    # with open('resume_summarize_prompt.txt', 'r') as f:
+    # with open('resume_prompt.txt', 'r') as f:
     #     prompt = f.read()
 
-    # prompt = prompt.replace('resume_content', resume.text)
+    # # prompt = prompt.replace('resume_content', resume.text)
 
-    # final = summarizer.summarize_info(prompt)
+    # final = summarizer.summarize_info(prompt, query=resume.text)
 
     # print(final)
 
     '''
     summary job
-    '''
-    df = pd.read_csv('job_descs.csv')
+    # '''
+    df = pd.read_csv('datasets/job_descs.csv')
 
-    description = df.iloc[1]['description']
+    description = df.iloc[2]['description']
 
-    with open('job_summarize_prompt.txt', 'r') as f:
+    with open('job_prompt.txt', 'r') as f:
         prompt = f.read()
 
-    prompt = prompt.replace('job_description', description)
-
-    final = summarizer.summarize_info(prompt)
+    final = summarizer.summarize_info(prompt, query=description)
 
     print(final)
 

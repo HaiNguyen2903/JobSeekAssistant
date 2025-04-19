@@ -3,3 +3,4 @@ indeed_scraper/
 __pycache__/
 Resume-Matcher/
 api_keys.json/
+*.faiss

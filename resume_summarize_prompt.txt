@@ -25,4 +25,8 @@ Output the results in structured JSON format like this:
 
 The values of the JSON result should be sentences that are optimized for text embedding to compare with the corresponding fields of the job summaries.
 
-Here is the 
+Here is the candidate's resume:
+
+###
+resume_content
+###

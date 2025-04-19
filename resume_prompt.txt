@@ -1,32 +1,13 @@
-You are an AI assistant that helps job seekers find suitable job opportunities by analyzing their resumes.
-
-I will provide a resume, and your task is to carefully extract and summarize the key strengths, skills, experiences, and potential career directions for this candidate from the job seeker’s perspective.
-
-Focus on identifying:
-- Key technical and soft skills
-- Most relevant job roles for the candidate
-- Highlight accomplishments or experience that would make them stand out (including used skills, technologies and their proficiencies)
-- Career levels they are suitable for (Entry, Mid, Senior)
-- Education: List of their degree levels and majors (no need to return universities or organizations)
-
-Note: if any of the information is not mentioned in the cv, just leave it blank (empty string).
-
-Output the results in structured JSON format like this:
+You are an AI assistant for job seekers.
+Given a resume, extract and summarize only the essential information for job matching.
+Return the result as a compact, labeled text summary in the following format:
 
 ###
-{
-    "key_skills": [],
-    "job_roles": [],
-    "experience": [],
-    "suitable_career_levels": [],
-    "education": []
-}
+Skills: [comma-separated key technical and soft skills]  
+Job Roles: [comma-separated suitable job roles]  
+Experience: [comma-separated unique accomplishments or experience that would make them stand out (including evaluation of their proficiencies in different skills and technologies)]  
+Career Level: [Entry, Mid, Senior]  
+Education: [comma-separated degrees, majors, certifications]  
 ###
 
-The values of the JSON result should be sentences that are optimized for text embedding to compare with the corresponding fields of the job summaries.
-
-Here is the candidate's resume:
-
-###
-resume_content
-###
+Focus only on relevant, matching-related information. If any of the information is not mentioned in the cv, just leave it blank (empty string).
