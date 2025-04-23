@@ -31,41 +31,9 @@ class Summarizer:
 
         return result
 
+def main():
+    return 
+
 if __name__ == '__main__':
-    with open('api_keys.json', 'r') as f:
-        keys = json.load(f)
-
-    summarizer = Summarizer(api_key=keys['UTS_OPENAI_KEY'])
-
-    '''
-    summarize resume
-    '''
-    # path = '/Users/hainguyen/Desktop/Harry_Nguyen_Resume.pdf'
-
-    # resume = Resume(source=path)
-
-    # summarizer = Summarizer(api_key=keys['UTS_OPENAI_KEY'])
-
-    # with open('resume_prompt.txt', 'r') as f:
-    #     prompt = f.read()
-
-    # # prompt = prompt.replace('resume_content', resume.text)
-
-    # final = summarizer.summarize_info(prompt, query=resume.text)
-
-    # print(final)
-
-    '''
-    summary job
-    # '''
-    df = pd.read_csv('datasets/job_descs.csv')
-
-    description = df.iloc[2]['description']
-
-    with open('job_prompt.txt', 'r') as f:
-        prompt = f.read()
-
-    final = summarizer.summarize_info(prompt=prompt, query=description)
-
-    print(final)
+    main()
 

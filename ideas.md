@@ -20,4 +20,5 @@ DOCS:
 - https://github.com/sliday/resume-job-matcher/blob/master/resume_matcher.py
 - https://github.com/Aillian/ResumeGPT
 
-PyMuPDF
+
+recreate faiss, id_mapping and data_merge file

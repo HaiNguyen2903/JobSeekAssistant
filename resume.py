@@ -20,13 +20,6 @@ class Resume:
             for page in pdf.pages:
                 text += page.extract_text() or ""
         return text
-    
-        # doc = fitz.open(self.source)
-        # text = ""
-        # for page in doc:
-        #     text += page.get_text()
-        # return text
-
 
 def main():
     df = pd.read_csv('datasets/UpdatedResumeDataSet.csv')

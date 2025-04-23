@@ -2,10 +2,10 @@ from openai import OpenAI
 import json
 from resume import Resume
 import pandas as pd
-import openai
 import numpy as np
 from summarizer import Summarizer
 import faiss
+import os.path as osp
 
 class Embedder:
     def __init__(self, api_key, embed_dims=1536):
@@ -68,57 +68,22 @@ class Embedder:
         return D, I
 
 def main():
-    with open('api_keys.json', 'r') as f:
-        keys = json.load(f)
+    with open('config.json', 'r') as f:
+        config = json.load(f)
 
-    api_key = keys['UTS_OPENAI_KEY']
+    api_key = config['UTS_OPENAI_KEY']
 
     embedder = Embedder(api_key=api_key)
-    summarizer = Summarizer(api_key=api_key)
-
-    with open('resume_prompt.txt', 'r') as f:
-        resume_prompt = f.read()
-
-    with open('job_prompt.txt', 'r') as f:
-        job_prompt = f.read()
 
     '''
     save job embeddings
     '''
-    # df = pd.read_csv('datasets/job_descs_sum_exp.csv')
+    df = pd.read_csv(osp.join(config['DATA_DIR'], 'job_merged.csv'))
 
-    # df['job_summary'] = df['description'].apply(summarizer.summarize_info, prompt=job_prompt)
+    save_embed_file = osp.join(config['EMBEDDING_DIR'], 'job_embeds.faiss')
+    save_id_file = osp.join(config['EMBEDDING_DIR'], 'id_mapping.json')
 
-    # # save csv
-    # df.to_csv('datasets/job_descs_sum_exp.csv', index=False)
-
-    # save_embed_file = 'job_embeds.faiss'
-    # save_id_file = 'id_mapping.json'
-    # embedder.store_job_embeddings(embed_output=save_embed_file, id_output=save_id_file, job_df=df)
-    # return
-
-    '''
-    embed resume and get k suitable jobs
-    '''
-    path = '/Users/hainguyen/Desktop/Harry_Nguyen_Resume.pdf'
-
-    resume_text = Resume(source=path, is_pdf=True).text
-
-    df = pd.read_csv('datasets/job_descs.csv')
-
-    description = df.iloc[2]['description']
-
-    resume_sum = summarizer.summarize_info(prompt=resume_prompt, query=resume_text)
-
-    # read embeddings from .faiss file
-    job_embeds = faiss.read_index('job_embeds.faiss')
-
-    # return cosine scores and embedding indices
-    D, I = embedder.get_topk_jobs(resume_text=resume_sum, job_embeds=job_embeds, k=5)
-    print(D)
-    print()
-    print(I)
-
+    embedder.store_job_embeddings(embed_output=save_embed_file, id_output=save_id_file, job_df=df)
     return
 
 if __name__ == '__main__':

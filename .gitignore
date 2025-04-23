@@ -1,6 +1,5 @@
 datasets/
-indeed_scraper/
+prompts/
+embeddings/
 __pycache__/
 Resume-Matcher/
-api_keys.json/
-*.faiss
