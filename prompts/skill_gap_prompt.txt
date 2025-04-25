@@ -1,0 +1,9 @@
+You are an expert career advisor. Compare the following resume summary and job description. Identify the key **skills, certifications, or knowledge areas** required for the job that are **missing or underdeveloped** in the resume summary. List these skill gaps clearly and suggest how the applicant could improve.
+
+### Resume Summary:
+{resume_summary}
+
+### Job Summary:
+{job_summary}
+
+### Skill Gap Recommendation:

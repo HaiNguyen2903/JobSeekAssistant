@@ -1,39 +1,34 @@
 from openai import OpenAI
-import json
-from resume import Resume
-import pandas as pd
+import os
 
 class Summarizer:
     def __init__(self, api_key):
+        self.api_key = api_key
         self.client = OpenAI(api_key=api_key)
-        return
-    
-    def summarize_info(self, query, prompt):
+
+    def summarize_info(self, prompt, query):
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
-            store=True,
             messages=[
-                        {"role": "system", "content": prompt},
-                        {"role": "user", "content": query}
-                    ],
-                    temperature=0.2,
-                    max_tokens=1000
-            )
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": query}
+            ]
+        )
+        return response.choices[0].message.content.strip()
 
-        # Extract the response content
-        result = response.choices[0].message.content
+    def generate_skill_gap(self, resume_summary, job_summary):
+        prompt = self._load_prompt("prompts/skill_gap_prompt.txt")
+        input_text = f"[RESUME]\n{resume_summary}\n\n[JOB]\n{job_summary}"
 
-        # # Convert the JSON string into a Python dictionary
-        # try:
-        #     result = json.loads(result)
-        # except json.JSONDecodeError as e:
-        #     print("Failed to parse JSON:", e)
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": input_text}
+            ]
+        )
+        return response.choices[0].message.content.strip()
 
-        return result
-
-def main():
-    return 
-
-if __name__ == '__main__':
-    main()
-
+    def _load_prompt(self, filepath):
+        with open(filepath, "r") as f:
+            return f.read().strip()
