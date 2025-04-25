@@ -4,7 +4,15 @@ Using the resume summary and job summary provided, write a concise, personalized
 
 Use a formal tone and keep the letter under 200 words. The letter should be ready to send.
 
-Format:
+Inputs:
+
+Resume Summary:
+{{USER_RESUME_SUMMARY}}
+
+Job Summary:
+{{JOB_DESCRIPTION_SUMMARY}}
+
+Output:
 Dear [Hiring Manager],
 
 [Paragraph 1: Introduce yourself and state interest in the position]

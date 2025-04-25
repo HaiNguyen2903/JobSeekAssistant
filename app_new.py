@@ -40,6 +40,14 @@ def display_ai_options(index, job_summary=None):
     skill_gap_check = f'skill_gap_check_{index}'
     cover_letter_gen = f'cover_letter_gen_{index}'
 
+    input = f"""
+        Resume Summary:
+        {st.session_state['resume_summary']}
+
+        Job Summary:
+        {job_summary}
+        """
+
     if ai_option not in st.session_state:
         st.session_state[ai_option] = None
 
@@ -73,26 +81,32 @@ def display_ai_options(index, job_summary=None):
                 st.write("Please upload your resume to check if this job is a good fit for you.")
             else:
                 with st.spinner("Comparing your resume with the job description..."):
-
-                    input = f"""
-                    Resume Summary:
-                    {st.session_state['resume_summary']}
-
-                    Job Summary:
-                    {job_summary}
-                    """
+                    st.write("**How do you match this job**")
                     response = st.session_state.llm_assistant.get_llm_response(instruction=st.session_state.llm_assistant.fit_explain_prompt, 
                                                                                user_input=input)
-                    
                     st.write(f"{response}")
 
     elif st.session_state[ai_option] == "skill_gap_check":
         if st.session_state[skill_gap_check]:
-            st.write("You are missing some skills for this job.")
+            if st.session_state['resume_summary'] is None:
+                st.write("Please upload your resume to check if this job is a good fit for you.")
+            else:
+                with st.spinner("Comparing your resume with the job description..."):
+                    st.write("**What you are missing**")
+                    response = st.session_state.llm_assistant.get_llm_response(instruction=st.session_state.llm_assistant.skill_gap_prompt, 
+                                                                               user_input=input)
+                    st.write(f"{response}")
 
     elif st.session_state[ai_option] == "cover_letter_gen":
         if st.session_state[cover_letter_gen]:
-            st.write("Generating a cover letter for this job.") 
+            if st.session_state['resume_summary'] is None:
+                st.write("Please upload your resume to check if this job is a good fit for you.")
+            else:
+                with st.spinner("Comparing your resume with the job description..."):
+                    st.write("**Draft Cover Letter**")
+                    response = st.session_state.llm_assistant.get_llm_response(instruction=st.session_state.llm_assistant.cover_letter_prompt, 
+                                                                               user_input=input)
+                    st.write(f"{response}")
 
 def display_job_post(filtered_df):
     filter_by_resume = False
@@ -212,14 +226,14 @@ def main():
 
                 resume_text = resume.text
                 resume_summary = summarizer.summarize_info(prompt=resume_prompt, query=resume_text)
-
-                if resume_summary == 'Resume Invalid':
-                    st.error("The document is not a resume. Please upload a valid resume.")
-                else:
-                    # save varibales to session state
-                    st.session_state['resume_summary'] = resume_summary
-                    st.sidebar.header("Resume Summary")
-                    st.sidebar.write(st.session_state['resume_summary'])
+                st.session_state['resume_summary'] = resume_summary
+        
+        # display resume summary
+        if st.session_state['resume_summary'] == 'Resume Invalid':
+            st.error("The document is not a resume. Please upload a valid resume.")
+        else:
+            st.sidebar.header("Resume Summary")
+            st.sidebar.write(st.session_state['resume_summary'])
 
 
     if st.sidebar.button("Search Jobs"):
