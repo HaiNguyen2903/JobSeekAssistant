@@ -7,11 +7,21 @@ from summarizer import Summarizer
 import faiss
 import os.path as osp
 
-class Embedder:
-    def __init__(self, api_key, embed_dims=1536):
-        self.client = OpenAI(api_key=api_key)
+class LLM_Embedder:
+    def __init__(self, config, embed_dims=1536):
+        self.client = OpenAI(api_key=config['UTS_OPENAI_KEY'])
         # embedding dimensions
         self.embed_dims = embed_dims
+        
+        job_embed_file = osp.join(config['EMBEDDING_DIR'], 'job_embeds.faiss')
+        id_mapping_file = osp.join(config['EMBEDDING_DIR'], 'id_mapping.json')
+        
+        with open(id_mapping_file, 'r') as f:
+            self.id_mapping = json.load(f)
+
+        # job embeddings
+        self.job_embeds = faiss.read_index(job_embed_file) 
+
         return
     
     def _get_embedding(self, text):
@@ -26,13 +36,6 @@ class Embedder:
         a = np.array(a)
         b = np.array(b)
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-    
-    def get_similarity_score(self, resume, job):
-        resume_embed = self._get_embedding(resume)
-        job_embed = self._get_embedding(job)
-
-        score = self._cosine_similarity(resume_embed, job_embed)
-        return score
     
     def store_job_embeddings(self, embed_output, id_output, job_df):
         index = faiss.IndexFlatL2(self.embed_dims)
@@ -58,7 +61,7 @@ class Embedder:
 
         return
     
-    def get_topk_jobs(self, resume_text, job_embeds, k=2):
+    def get_sim_scores(self, resume_text, job_embeds, k=2):
         resume_embed = np.array(self._get_embedding(resume_text), dtype='float32').reshape(1, -1)
         
         # normalize embedding
@@ -71,9 +74,7 @@ def main():
     with open('config.json', 'r') as f:
         config = json.load(f)
 
-    api_key = config['UTS_OPENAI_KEY']
-
-    embedder = Embedder(api_key=api_key)
+    embedder = LLM_Embedder(config=config)
 
     '''
     save job embeddings
