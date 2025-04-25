@@ -1,10 +1,10 @@
-from openai import OpenAI
 import os
+import openai
 
 class Summarizer:
     def __init__(self, api_key):
-        self.api_key = api_key
-        self.client = OpenAI(api_key=api_key)
+        openai.api_key = api_key
+        self.client = openai
 
     def summarize_info(self, prompt, query):
         response = self.client.chat.completions.create(
@@ -16,19 +16,31 @@ class Summarizer:
         )
         return response.choices[0].message.content.strip()
 
-    def generate_skill_gap(self, resume_summary, job_summary):
+    def tailor_cv(self, resume_summary, job_summary):
+        prompt = self._load_prompt("prompts/tailor_cv_prompt.txt")
+        input_text = f"[RESUME]\n{resume_summary}\n\n[JOB]\n{job_summary}"
+        return self._ask_gpt(prompt, input_text)
+
+    def generate_cover_letter(self, resume_summary, job_summary):
+        prompt = self._load_prompt("prompts/cover_letter_prompt.txt")
+        input_text = f"[RESUME]\n{resume_summary}\n\n[JOB]\n{job_summary}"
+        return self._ask_gpt(prompt, input_text)
+
+    def get_skill_gap(self, resume_summary, job_summary):
         prompt = self._load_prompt("prompts/skill_gap_prompt.txt")
         input_text = f"[RESUME]\n{resume_summary}\n\n[JOB]\n{job_summary}"
+        return self._ask_gpt(prompt, input_text)
 
+    def _ask_gpt(self, prompt, content):
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": prompt},
-                {"role": "user", "content": input_text}
+                {"role": "user", "content": content}
             ]
         )
         return response.choices[0].message.content.strip()
 
-    def _load_prompt(self, filepath):
-        with open(filepath, "r") as f:
+    def _load_prompt(self, file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
             return f.read().strip()
