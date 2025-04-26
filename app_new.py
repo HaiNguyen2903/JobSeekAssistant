@@ -146,14 +146,21 @@ def get_job_embed_ids(job_ids, id_mapping):
 def filter_topk_jobs(filtered_df, num_matched_jobs):
     # get only embeddings on filtered jobs
     filtered_job_ids = filtered_df['job_id'].tolist()
+    
+    # get job embedding ids
     filtered_embed_ids = get_job_embed_ids(filtered_job_ids,
                                         ss.llm_embedder.id_mapping)
+    
+    # get filtered job embeddings
     filtered_job_embeds = np.array([ss.llm_embedder.job_embeds.reconstruct(int(id)) \
                                     for id in filtered_embed_ids])
 
-    # convert to faiss index IP type
+    # generate new filtered faiss index
     faiss_index = faiss.IndexFlatIP(filtered_job_embeds.shape[1])
     faiss_index.add(filtered_job_embeds)
+
+    # mapping new embed ids to old embed ids
+    embed_id_dict ={new_id: old_id for new_id, old_id in enumerate(filtered_embed_ids)}
 
     # calculate similarity score for filtered jobs
     sim_scores, embed_matched_ids = ss['llm_embedder'].\
@@ -163,19 +170,17 @@ def filter_topk_jobs(filtered_df, num_matched_jobs):
     # ignore -1 value
     job_sim_scores = {}
 
-    print('SCORES', sim_scores, embed_matched_ids)
-
     for rank, (score, index) in enumerate(zip(sim_scores[0], embed_matched_ids[0])):
         if index < 0:
             break
+        
+        # mapping new embed id -> old embed id -> job id
+        job_id = ss.llm_embedder.id_mapping[str(embed_id_dict[index])]
 
-        job_id = ss.llm_embedder.id_mapping[str(index)]
         job_sim_scores[job_id] = {'rank': rank + 1, 'score': score}
 
     # filterd only matched jobs
     filtered_df = filtered_df[filtered_df['job_id'].isin(job_sim_scores.keys())]
-
-    print(len(filtered_df))
 
     # add job rank and sim scores to df
     filtered_df['rank'] = filtered_df['job_id'].map(lambda x: job_sim_scores.get(x, {}).get('rank', None))
