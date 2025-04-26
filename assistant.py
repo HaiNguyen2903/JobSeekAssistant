@@ -5,7 +5,7 @@ from resume import Resume
 
 class LLM_Assistant:
     def __init__(self, config):
-        openai.api_key = config["UTS_OPENAI_KEY"]
+        openai.api_key = config["OPENAI_KEY"]
 
         resume_prompt_file = os.path.join(config["PROMPT_DIR"], "resume_prompt.txt")
         job_prompt_file = os.path.join(config["PROMPT_DIR"], "job_prompt.txt")
@@ -40,9 +40,3 @@ if __name__ == "__main__":
         config = json.load(f)
 
     llm = LLM_Assistant(config)
-
-    resume = Resume('datasets/resume_pdf/candidate_018.pdf', is_pdf=True)
-
-    summary = llm.get_llm_response(instruction=llm.resume_prompt, user_input=resume.text)
-
-    print(summary)

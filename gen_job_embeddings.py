@@ -1,15 +1,15 @@
 from openai import OpenAI
 import json
-from resume import Resume
 import pandas as pd
 import numpy as np
-from summarizer import Summarizer
 import faiss
 import os.path as osp
+from gen_job_data import mkdir_if_missing
+import argparse
 
 class LLM_Embedder:
     def __init__(self, config, embed_dims=1536):
-        self.client = OpenAI(api_key=config['UTS_OPENAI_KEY'])
+        self.client = OpenAI(api_key=config['OPENAI_KEY'])
         # embedding dimensions
         self.embed_dims = embed_dims
         
@@ -38,7 +38,7 @@ class LLM_Embedder:
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
     
     def store_job_embeddings(self, embed_output, id_output, job_df):
-        index = faiss.IndexFlatL2(self.embed_dims)
+        index = faiss.IndexFlatIP(self.embed_dims)
 
         id_mapping = {i: job_id for i, job_id in enumerate(job_df['job_id'])}
 
@@ -52,7 +52,7 @@ class LLM_Embedder:
         embeddings = np.vstack(job_df['embedding'].values).astype('float32')
 
         # normalize embeddings
-        faiss.normalize_L2(embeddings)
+        embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
 
         # add to index
         index.add(embeddings)
@@ -74,6 +74,12 @@ def main():
     with open('config.json', 'r') as f:
         config = json.load(f)
 
+    parser = argparse.ArgumentParser(description="Generate job embeddings")
+    parser.add_argument('--save_dir', type=str, help='Path to save embedding files',
+                        default=config['EMBEDDING_DIR'])
+    
+    args = parser.parse_args()
+
     embedder = LLM_Embedder(config=config)
 
     '''
@@ -81,8 +87,10 @@ def main():
     '''
     df = pd.read_csv(osp.join(config['DATA_DIR'], 'job_merged.csv'))
 
-    save_embed_file = osp.join(config['EMBEDDING_DIR'], 'job_embeds.faiss')
-    save_id_file = osp.join(config['EMBEDDING_DIR'], 'id_mapping.json')
+    mkdir_if_missing(args.save_dir)
+
+    save_embed_file = osp.join(args.save_dir, 'job_embeds.faiss')
+    save_id_file = osp.join(args.save_dir, 'id_mapping.json')
 
     embedder.store_job_embeddings(embed_output=save_embed_file, id_output=save_id_file, job_df=df)
     return
