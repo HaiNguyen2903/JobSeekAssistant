@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate job dataset")
     parser.add_argument('--save_path', type=str, help='Path to save the generated job dataset',
                         default=osp.join(config['DATA_DIR'], 'job_merged.csv'))
-    parser.add_argument('--max_jobs', type=str, help='Maximum number of jobs to extract',
+    parser.add_argument('--max_jobs', type=int, help='Maximum number of jobs to extract',
                         default=500)
     
     args = parser.parse_args()
