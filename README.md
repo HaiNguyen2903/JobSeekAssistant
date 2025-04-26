@@ -1,3 +1,13 @@
+# A Simple LLM Power Job Search application
+
+The project focuses on creating a web application designed to help users secure jobs where they stand out as top candidates based on their resumes. 
+
+Key features include extracting essential details from users’ PDF resumes, gathering pertinent data from job postings on LinkedIn and other platforms, and aligning user resumes with the most suitable job opportunities, incorporating with other advanced features such as skill gaps recommendation or draft cover letter generation.
+
+The goal is to assist users in pinpointing the best job matches that capitalize on their strengths and experience, boosting their employment prospects.
+
+![My Image](images/demo1.png)
+![My Image](images/demo2.png)
 # Installation Guide
 
 ## 0. Install neccessary packages

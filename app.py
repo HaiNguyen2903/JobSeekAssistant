@@ -194,7 +194,9 @@ def main():
 
     job_merged_path = osp.join(config['DATA_DIR'], 'job_merged.csv')
 
-    st.sidebar.header("Filter Options")
+
+    st.sidebar.header("LLM Powered Job Search")
+    st.sidebar.subheader("Filter Options")
 
     company_name_filter = st.sidebar.text_input("Company Name")
     job_title_filter = st.sidebar.text_input("Job Title")
@@ -224,7 +226,7 @@ def main():
         ss.llm_embedder = LLM_Embedder(config=config)
 
     # Resume Upload Section
-    st.sidebar.header("Resume Upload")
+    st.sidebar.subheader("Resume Upload")
     
     uploaded_file = st.sidebar.file_uploader("Upload your resume PDF file here", type=["pdf"])
 
@@ -262,7 +264,7 @@ def main():
             ss.job_list = filter_topk_jobs(ss.job_list, num_matched_jobs=num_matched_jobs)
 
     # display filtered job postings (only first 20 jobs)
-    st.write(f"### Showing {len(ss.job_list)} Job Postings")
+    st.write(f"### Job Postings")
     display_job_post(filtered_df=ss.job_list[:20])
 
 if __name__ == '__main__':
