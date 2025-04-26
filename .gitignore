@@ -2,5 +2,5 @@ datasets/
 embeddings/
 __pycache__/
 Resume-Matcher/
-.ideas.md
-.config.json
+ideas.md
+config.json

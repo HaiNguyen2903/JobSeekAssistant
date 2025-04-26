@@ -1,7 +1,0 @@
-{
-    "PROMPT_DIR": "prompts",
-    "EMBEDDING_DIR": "embeddings",
-    "DATA_DIR": "datasets",
-    "PERSONAL_OPENAI_KEY": "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",
-    "OPENAI_KEY": "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"
-}
